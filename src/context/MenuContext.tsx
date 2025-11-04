@@ -6,9 +6,14 @@ import type { MenuItem } from '../types';
 type MenuContextType = {
   menu: MenuItem[];
   addItem: (item: MenuItem) => void;
+  removeItem: (id: string) => void; // ← ADDED
 };
 
-const MenuContext = createContext<MenuContextType>({ menu: [], addItem: () => {} });
+const MenuContext = createContext<MenuContextType>({ 
+  menu: [], 
+  addItem: () => {},
+  removeItem: () => {} // ← ADDED
+});
 
 export const useMenu = () => useContext(MenuContext);
 
@@ -30,8 +35,15 @@ export const MenuProvider = ({ children }: { children: ReactNode }) => {
     await AsyncStorage.setItem('@menu', JSON.stringify(newMenu));
   };
 
+  // Remove item from menu and storage
+  const removeItem = async (id: string) => {
+    const newMenu = menu.filter(i => i.id !== id);
+    setMenu(newMenu);
+    await AsyncStorage.setItem('@menu', JSON.stringify(newMenu));
+  };
+
   return (
-    <MenuContext.Provider value={{ menu, addItem }}>
+    <MenuContext.Provider value={{ menu, addItem, removeItem }}> 
       {children}
     </MenuContext.Provider>
   );
