@@ -1,13 +1,12 @@
 // src/utils/menuHelpers.ts
 import type { MenuItem } from '../types';
-import { menuData } from '../data/menuData';
 
-export function getAveragePriceForLoop(category: 'Starter' | 'Main' | 'Dessert'): number {
+export function getAveragePriceForLoop(menu: MenuItem[], category: 'Starter' | 'Main' | 'Dessert'): number {
   let sum = 0;
   let count = 0;
-  for (let i = 0; i < menuData.length; i++) {
-    if (menuData[i].category === category) {
-      sum += parseFloat(menuData[i].price);
+  for (let i = 0; i < menu.length; i++) {
+    if (menu[i].category === category) {
+      sum += parseFloat(menu[i].price);
       count++;
     }
   }
