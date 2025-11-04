@@ -6,13 +6,13 @@ import type { MenuItem } from '../types';
 type MenuContextType = {
   menu: MenuItem[];
   addItem: (item: MenuItem) => void;
-  removeItem: (id: string) => void; // ← ADDED
+  removeItem: (id: string) => void; 
 };
 
 const MenuContext = createContext<MenuContextType>({ 
   menu: [], 
   addItem: () => {},
-  removeItem: () => {} // ← ADDED
+  removeItem: () => {} 
 });
 
 export const useMenu = () => useContext(MenuContext);
@@ -24,22 +24,29 @@ export const MenuProvider = ({ children }: { children: ReactNode }) => {
     // Load menu from AsyncStorage on mount
     const loadMenu = async () => {
       const storedMenu = await AsyncStorage.getItem('@menu');
-      if (storedMenu) setMenu(JSON.parse(storedMenu));
+      if (storedMenu) {
+        const parsed = JSON.parse(storedMenu);
+        setMenu(parsed);
+      }
     };
     loadMenu();
   }, []);
 
   const addItem = async (item: MenuItem) => {
-    const newMenu = [...menu, item];
-    setMenu(newMenu);
-    await AsyncStorage.setItem('@menu', JSON.stringify(newMenu));
+    setMenu(prevMenu => {
+      const newMenu = [...prevMenu, item];
+      AsyncStorage.setItem('@menu', JSON.stringify(newMenu));
+      return newMenu;
+    });
   };
 
   // Remove item from menu and storage
   const removeItem = async (id: string) => {
-    const newMenu = menu.filter(i => i.id !== id);
-    setMenu(newMenu);
-    await AsyncStorage.setItem('@menu', JSON.stringify(newMenu));
+    setMenu(prevMenu => {
+      const newMenu = prevMenu.filter(i => i.id !== id);
+      AsyncStorage.setItem('@menu', JSON.stringify(newMenu));
+      return newMenu;
+    });
   };
 
   return (
