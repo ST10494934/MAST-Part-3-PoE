@@ -5,12 +5,18 @@ import { useMenu } from '../context/MenuContext';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '../types';
+import { getAveragePriceForLoop } from '../utils/menuHelpers';
 
 type Nav = NativeStackNavigationProp<RootStackParamList, 'MenuDisplay'>;
 
 export default function MenuDisplayScreen() {
   const { menu } = useMenu();
   const navigation = useNavigation<Nav>();
+
+  
+  const avgStarter = getAveragePriceForLoop('Starter').toFixed(2);
+  const avgMain    = getAveragePriceForLoop('Main').toFixed(2);
+  const avgDessert = getAveragePriceForLoop('Dessert').toFixed(2);
 
   const categories: ('Starter' | 'Main' | 'Dessert')[] = ['Starter', 'Main', 'Dessert'];
 
@@ -20,8 +26,15 @@ export default function MenuDisplayScreen() {
   return (
     <ScrollView style={styles.container}>
       <TouchableOpacity style={styles.backBtn} onPress={() => navigation.navigate('Welcome')}>
-        <Text style={styles.backText}>← Back to Home</Text>
+        <Text style={styles.backText}>Back to Home</Text>
       </TouchableOpacity>
+
+      <View style={styles.avgBox}>
+        <Text style={styles.avgTitle}>Average Price per Course</Text>
+        <Text style={styles.avgLine}>Starters: R{avgStarter}</Text>
+        <Text style={styles.avgLine}>Mains: R{avgMain}</Text>
+        <Text style={styles.avgLine}>Desserts: R{avgDessert}</Text>
+      </View>
 
       <Text style={styles.total}>Total Menu Items: {menu.length}</Text>
 
@@ -49,6 +62,9 @@ const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#1a1a1a', padding: 16 },
   backBtn: { marginBottom: 16 },
   backText: { color: '#FFD700', textDecorationLine: 'underline', fontSize: 16 },
+  avgBox: { backgroundColor: '#333', padding: 16, borderRadius: 12, marginBottom: 20 },
+  avgTitle: { color: '#FFD700', fontSize: 20, fontWeight: '700', marginBottom: 8, textAlign: 'center' },
+  avgLine: { color: '#fff', fontSize: 16, textAlign: 'center' },
   total: { color: '#FFD700', fontSize: 20, fontWeight: '700', marginBottom: 20, textAlign: 'center' },
   categorySection: { marginBottom: 24 },
   categoryTitle: { color: '#FFD700', fontSize: 24, fontWeight: '700', marginBottom: 12 },
