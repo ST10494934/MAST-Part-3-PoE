@@ -1,6 +1,6 @@
 // src/screens/AddDishScreen.tsx
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, ScrollView } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, ScrollView, FlatList } from 'react-native'; // ← ADDED FlatList
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { RootStackParamList, MenuItem } from '../types';
@@ -11,7 +11,7 @@ type Nav = NativeStackNavigationProp<RootStackParamList, 'AddDish'>;
 
 export default function AddDishScreen() {
   const navigation = useNavigation<Nav>();
-  const { addItem } = useMenu();
+  const { addItem, removeItem, menu } = useMenu(); // removeItem, menu
 
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
@@ -39,6 +39,31 @@ export default function AddDishScreen() {
     setPrice('');
     setCategory('Starter');
   };
+
+  // Delete handler
+  const onDelete = (id: string) => {
+    Alert.alert('Delete', 'Remove this dish?', [
+      { text: 'Cancel', style: 'cancel' },
+      {
+        text: 'Delete',
+        style: 'destructive',
+        onPress: () => removeItem(id),
+      },
+    ]);
+  };
+
+  const renderItem = ({ item }: { item: MenuItem }) => (
+    <View style={styles.itemRow}>
+      <View style={styles.itemInfo}>
+        <Text style={styles.itemName}>{item.name}</Text>
+        <Text style={styles.itemDesc}>{item.description}</Text>
+        <Text style={styles.itemPrice}>R{item.price}</Text>
+      </View>
+      <TouchableOpacity style={styles.deleteBtn} onPress={() => onDelete(item.id)}>
+        <Text style={styles.deleteTxt}>Remove</Text>
+      </TouchableOpacity>
+    </View>
+  );
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
@@ -88,8 +113,16 @@ export default function AddDishScreen() {
         <Text style={styles.viewMenuText}>View Menu</Text>
       </TouchableOpacity>
 
+      <Text style={styles.listTitle}>Current Menu</Text>
+      <FlatList
+        data={menu}
+        renderItem={renderItem}
+        keyExtractor={i => i.id}
+        ListEmptyComponent={<Text style={styles.empty}>No dishes yet.</Text>}
+      />
+
       <TouchableOpacity style={styles.backBtn} onPress={() => navigation.navigate('Chef')}>
-        <Text style={styles.backText}>← Back to Home</Text>
+        <Text style={styles.backText}>Back to Home</Text>
       </TouchableOpacity>
     </ScrollView>
   );
@@ -179,5 +212,53 @@ const styles = StyleSheet.create({
     color: '#fff',
     textDecorationLine: 'underline',
     fontSize: 16,
+  },
+  // ← ADDED STYLES
+  listTitle: {
+    color: '#FFD700',
+    fontSize: 22,
+    fontWeight: '700',
+    marginTop: 20,
+    marginBottom: 12,
+    textAlign: 'center',
+  },
+  itemRow: {
+    flexDirection: 'row',
+    backgroundColor: '#333',
+    padding: 14,
+    borderRadius: 12,
+    marginBottom: 12,
+    alignItems: 'center',
+  },
+  itemInfo: {
+    flex: 1,
+  },
+  itemName: {
+    color: '#fff',
+    fontSize: 18,
+    fontWeight: '600',
+  },
+  itemDesc: {
+    color: '#ccc',
+    fontSize: 14,
+  },
+  itemPrice: {
+    color: '#FFD700',
+    fontWeight: '700',
+  },
+  deleteBtn: {
+    backgroundColor: '#c00',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 8,
+  },
+  deleteTxt: {
+    color: '#fff',
+    fontWeight: '700',
+  },
+  empty: {
+    color: '#888',
+    textAlign: 'center',
+    marginTop: 20,
   },
 });
